@@ -1,54 +1,97 @@
 package id.sch.smktelkom_mlg.learn.intent3;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.view.View;
+import android.widget.ImageView;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 public class MainActivity extends AppCompatActivity {
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    public void capturePhoto() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null)
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+    }
+        @Override
+        protected void onActivityResult ( int requestCode,int resultCode, Intent data)
+        {
+            super.onActivityResult(requestCode,resultCode,data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
+        {
+            Bitmap bitmap = data.getParcelableExtra("data");
+            ImageView iv = (ImageView) findViewById(R.id.imageViewCamera);
+            iv.setImageBitmap(bitmap);
+        }
+
+
+    }
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.imageViewPhone)
-                .setOnClickListener(new View.OnClickListener()
-                {
+                .setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void  onClick(View view)
-                    {
-                        dialPhoneNumber ("0241712500");
+                    public void onClick(View view) {
+                        dialPhoneNumber("0241712500");
                     }
                 });
         findViewById(R.id.imageViewSMS)
-                .setOnClickListener(new View.OnClickListener()
-                {
+                .setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-                    {
+                    public void onClick(View view) {
                         composeSmsMessage("Pesan dari SMK Telkom Malang");
                     }
                 });
         findViewById(R.id.imageViewBrowser)
-                .setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        openWebPage("https://www.smktelkom-mlg.sch.id/");
-                    }
-                }
-                
-                
+                .setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            openWebPage("https://www.smktelkom-mlg.sch.id/");
+                                        }
+                                    }
+
+
                 );
+        findViewById(R.id.imageViewCamera)
+                .setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            capturePhoto();
+                                        }
+                                    }
+
+                );
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
+
+
 
     public void openWebPage(String url) {
         Uri webpage = Uri.parse(url);
         Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
-        if (intent.resolveActivity(getPackageManager()) !=null)
+        if (intent.resolveActivity(getPackageManager()) != null)
             startActivity(intent);
     }
 
@@ -56,18 +99,56 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra("sms_body", message);
-        if (intent.resolveActivity(getPackageManager()) !=null)
+        if (intent.resolveActivity(getPackageManager()) != null)
             startActivity(intent);
 
     }
 
-    public void dialPhoneNumber(String phoneNumber)
-    {
+    public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
-        if (intent.resolveActivity(getPackageManager()) !=null)
+        if (intent.resolveActivity(getPackageManager()) != null)
             startActivity(intent);
     }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://id.sch.smktelkom_mlg.learn.intent3/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://id.sch.smktelkom_mlg.learn.intent3/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
+}
